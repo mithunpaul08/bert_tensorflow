@@ -981,7 +981,8 @@ def main(_):
   processor = processors[task_name]()
 
   label_list = processor.get_labels()
-  print(f"value fo FLAGS.do_lower_caseis {FLAGS.do_lower_case}")
+  print("value fo FLAGS.do_lower_caseis")
+  print(FLAGS.do_lower_case)
   import sys
   sys.exit(1)
   tokenizer = tokenization.FullTokenizer(
