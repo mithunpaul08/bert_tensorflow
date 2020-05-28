@@ -1,0 +1,1 @@
+ python run_classifier_ARC_DETAILED_sandeep.py --task_name=fevercd --do_train=true --do_eval=true --data_dir=$GLUE_DIR --vocab_file=$MODEL_DIR/vocab.txt --bert_config_file=$MODEL_DIR/bert_config.json --init_checkpoint=$MODEL_DIR/bert_model.ckpt --max_seq_length=64  --train_batch_size=16 --learning_rate=1e-5 --num_train_epochs=5.0 --output_dir=$OUT_DIR
