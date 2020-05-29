@@ -1,3 +1,8 @@
+sandeps code:
+
+- scp data
+- upload trained_models folder
+
 # BERT
 
 **\*\*\*\*\* New November 23rd, 2018: Un-normalized multilingual model + Thai +
