@@ -1030,6 +1030,7 @@ def main(_):
         seq_length=FLAGS.max_seq_length,
         is_training=False,
         drop_remainder=predict_drop_remainder)
+        drop_remainder=predict_drop_remainder)
 
     result = estimator.predict(input_fn=predict_input_fn)
     # comet_value_updater.log_metric(
