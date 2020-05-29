@@ -17,7 +17,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+from comet_ml import Experiment,ExistingExperiment
 import collections
 import csv
 import os
@@ -80,7 +80,7 @@ flags.DEFINE_bool("do_train", True, "Whether to run training.")
 flags.DEFINE_bool("do_eval", True, "Whether to run eval on the dev set.")
 
 flags.DEFINE_bool(
-    "do_predict", True,
+    "do_predict", False,
     "Whether to run the model in inference mode on the test set.")
 
 flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
@@ -130,6 +130,13 @@ tf.flags.DEFINE_string("master", None, "[Optional] TensorFlow master URL.")
 flags.DEFINE_integer(
     "num_tpu_cores", 8,
     "Only used if `use_tpu` is True. Total number of TPU cores to use.")
+def initialize_comet():
+    # for drawing graphs on comet:
+    comet_Expt_object=None
+
+    comet_Expt_object = Experiment(api_key="XUbi4cShweB6drrJ5eAKMT6FT", project_name="sandeep_bert_code")
+
+    return comet_Expt_object
 
 
 class InputExample(object):
@@ -212,93 +219,6 @@ class DataProcessor(object):
       return lines
 
 
-# class XnliProcessor(DataProcessor):
-#   """Processor for the XNLI data set."""
-#
-#   def __init__(self):
-#     self.language = "zh"
-#
-#   def get_train_examples(self, data_dir):
-#     """See base class."""
-#     lines = self._read_tsv(
-#         os.path.join(data_dir, "multinli",
-#                      "multinli.train.%s.tsv" % self.language))
-#     examples = []
-#     for (i, line) in enumerate(lines):
-#       if i == 0:
-#         continue
-#       guid = "train-%d" % (i)
-#       text_a = tokenization.convert_to_unicode(line[0])
-#       text_b = tokenization.convert_to_unicode(line[1])
-#       label = tokenization.convert_to_unicode(line[2])
-#       if label == tokenization.convert_to_unicode("contradictory"):
-#         label = tokenization.convert_to_unicode("contradiction")
-#       examples.append(
-#           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-#     return examples
-#
-#   def get_dev_examples(self, data_dir):
-#     """See base class."""
-#     lines = self._read_tsv(os.path.join(data_dir, "xnli.dev.tsv"))
-#     examples = []
-#     for (i, line) in enumerate(lines):
-#       if i == 0:
-#         continue
-#       guid = "dev-%d" % (i)
-#       language = tokenization.convert_to_unicode(line[0])
-#       if language != tokenization.convert_to_unicode(self.language):
-#         continue
-#       text_a = tokenization.convert_to_unicode(line[6])
-#       text_b = tokenization.convert_to_unicode(line[7])
-#       label = tokenization.convert_to_unicode(line[1])
-#       examples.append(
-#           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-#     return examples
-#
-#   def get_labels(self):
-#     """See base class."""
-#     return ["contradiction", "entailment", "neutral"]
-#
-#
-# class MnliProcessor(DataProcessor):
-#   """Processor for the MultiNLI data set (GLUE version)."""
-#
-#   def get_train_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
-#
-#   def get_dev_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "dev_matched.tsv")),
-#         "dev_matched")
-#
-#   def get_test_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "test_matched.tsv")), "test")
-#
-#   def get_labels(self):
-#     """See base class."""
-#     return ["contradiction", "entailment", "neutral"]
-#
-#   def _create_examples(self, lines, set_type):
-#     """Creates examples for the training and dev sets."""
-#     examples = []
-#     for (i, line) in enumerate(lines):
-#       if i == 0:
-#         continue
-#       guid = "%s-%s" % (set_type, tokenization.convert_to_unicode(line[0]))
-#       text_a = tokenization.convert_to_unicode(line[8])
-#       text_b = tokenization.convert_to_unicode(line[9])
-#       if set_type == "test":
-#         label = "contradiction"
-#       else:
-#         label = tokenization.convert_to_unicode(line[-1])
-#       examples.append(
-#           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-#     return examples
 
 class FeverProcessorCrossDomain(DataProcessor):
   """Processor for the Fever data set cross-domain (GLUE version)."""
@@ -352,8 +272,9 @@ class FeverProcessorInDomain(DataProcessor):
 
   def get_test_examples(self, data_dir):
     """See base class."""
+    ##feeding fnc.dev as the test partition
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+        self._read_tsv(os.path.join(data_dir, "dev.tsv")), "test")
 
   def get_labels(self):
     """See base class."""
@@ -453,86 +374,6 @@ class FNCProcessorInDomain(DataProcessor):
             InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
 
-# class MrpcProcessor(DataProcessor):
-#   """Processor for the MRPC data set (GLUE version)."""
-#
-#   def get_train_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
-#
-#   def get_dev_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
-#
-#   def get_test_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
-#
-#   def get_labels(self):
-#     """See base class."""
-#     return ["0", "1"]
-#
-#   def _create_examples(self, lines, set_type):
-#     """Creates examples for the training and dev sets."""
-#     examples = []
-#     for (i, line) in enumerate(lines):
-#       if i == 0:
-#         continue
-#       guid = "%s-%s" % (set_type, i)
-#       text_a = tokenization.convert_to_unicode(line[3])
-#       text_b = tokenization.convert_to_unicode(line[4])
-#       if set_type == "test":
-#         label = "0"
-#       else:
-#         label = tokenization.convert_to_unicode(line[0])
-#       examples.append(
-#           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
-#     return examples
-#
-#
-# class ColaProcessor(DataProcessor):
-#   """Processor for the CoLA data set (GLUE version)."""
-#
-#   def get_train_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
-#
-#   def get_dev_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
-#
-#   def get_test_examples(self, data_dir):
-#     """See base class."""
-#     return self._create_examples(
-#         self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
-#
-#   def get_labels(self):
-#     """See base class."""
-#     return ["0", "1","2"]
-#
-#   def _create_examples(self, lines, set_type):
-#     """Creates examples for the training and dev sets."""
-#     examples = []
-#     for (i, line) in enumerate(lines):
-#       # Only the test set has a header
-#       if set_type == "test" and i == 0:
-#         continue
-#       guid = "%s-%s" % (set_type, i)
-#       if set_type == "test":
-#         text_a = tokenization.convert_to_unicode(line[1])
-#         label = "0"
-#       else:
-#         text_a = tokenization.convert_to_unicode(line[3])
-#         label = tokenization.convert_to_unicode(line[1])
-#       examples.append(
-#           InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
-#     return examples
-#
 
 def convert_single_example(ex_index, example, label_list, max_seq_length,
                            tokenizer):
@@ -662,7 +503,7 @@ def file_based_convert_examples_to_features(
         [int(feature.is_real_example)])
 
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
-    #writer.write(tf_example.SerializeToString())
+    writer.write(tf_example.SerializeToString())
   writer.close()
 
 
@@ -950,7 +791,10 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
 
 
 def main(_):
+
+
   tf.logging.set_verbosity(tf.logging.INFO)
+  comet_value_updater = initialize_comet()
 
   processors = {
       # "cola": ColaProcessor,
@@ -1052,10 +896,10 @@ def main(_):
         seq_length=FLAGS.max_seq_length,
         is_training=True,
         drop_remainder=True)
-    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+    train_output=estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
 
   if FLAGS.do_eval:
-    eval_examples = processor.get_dev_examples(FLAGS.data_dir_cross_domain)
+    eval_examples = processor.get_dev_examples(FLAGS.data_dir)
     num_actual_eval_examples = len(eval_examples)
     if FLAGS.use_tpu:
       # TPU requires a fixed batch size for all batches, therefore the number
@@ -1092,8 +936,13 @@ def main(_):
         drop_remainder=eval_drop_remainder)
 
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-    
-    output_eval_file = os.path.join(FLAGS.output_dir, "eval_results.txt")
+
+    comet_value_updater.log_metric(
+        "eval_accuracy",
+        result["eval_accuracy"],
+        step=result["global_step"])
+
+    output_eval_file = os.path.join(FLAGS.output_dir, "eval_fever_results.txt")
     
     tf.logging.info("Sandeep-4")
     tf.logging.info(output_eval_file)
@@ -1103,7 +952,64 @@ def main(_):
       tf.logging.info("***** Eval results *****")
       for key in sorted(result.keys()):
         tf.logging.info("  %s = %s", key, str(result[key]))
-        #writer.write("%s = %s\n" % (key, str(result[key])))
+        writer.write("%s = %s\n" % (key, str(result[key])))
+
+
+    #running eval twice . once on fever-dev and another on fnc-dev. the predict below is useless.. it just prints logits
+  if FLAGS.do_eval:
+      eval_examples = processor.get_dev_examples(FLAGS.data_dir_cross_domain)
+      num_actual_eval_examples = len(eval_examples)
+      if FLAGS.use_tpu:
+          # TPU requires a fixed batch size for all batches, therefore the number
+          # of examples must be a multiple of the batch size, or else examples
+          # will get dropped. So we pad with fake examples which are ignored
+          # later on. These do NOT count towards the metric (all tf.metrics
+          # support a per-instance weight, and these get a weight of 0.0).
+          while len(eval_examples) % FLAGS.eval_batch_size != 0:
+              eval_examples.append(PaddingInputExample())
+
+      eval_file = os.path.join(FLAGS.output_dir, "eval_tf_record.txt")
+      file_based_convert_examples_to_features(
+          eval_examples, label_list, FLAGS.max_seq_length, tokenizer, eval_file)
+
+      tf.logging.info("***** Running evaluation *****")
+      tf.logging.info("  Num examples = %d (%d actual, %d padding)",
+                      len(eval_examples), num_actual_eval_examples,
+                      len(eval_examples) - num_actual_eval_examples)
+      tf.logging.info("  Batch size = %d", FLAGS.eval_batch_size)
+
+      # This tells the estimator to run through the entire set.
+      eval_steps = None
+      # However, if running eval on the TPU, you will need to specify the
+      # number of steps.
+      if FLAGS.use_tpu:
+          assert len(eval_examples) % FLAGS.eval_batch_size == 0
+          eval_steps = int(len(eval_examples) // FLAGS.eval_batch_size)
+
+      eval_drop_remainder = True if FLAGS.use_tpu else False
+      eval_input_fn = file_based_input_fn_builder(
+          input_file=eval_file,
+          seq_length=FLAGS.max_seq_length,
+          is_training=False,
+          drop_remainder=eval_drop_remainder)
+
+      result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
+
+      comet_value_updater.log_metric(
+          "eval_accuracy",
+          result["eval_accuracy"],
+          step=result["global_step"])
+
+      output_eval_file = os.path.join(FLAGS.output_dir, "eval_fnc_results.txt")
+
+      tf.logging.info("Sandeep-4")
+      tf.logging.info(output_eval_file)
+
+      with tf.gfile.GFile(output_eval_file, "a") as writer:
+          tf.logging.info("***** Eval results *****")
+          for key in sorted(result.keys()):
+              tf.logging.info("  %s = %s", key, str(result[key]))
+              writer.write("%s = %s\n" % (key, str(result[key])))
 
   if FLAGS.do_predict:
     predict_examples = processor.get_test_examples(FLAGS.data_dir_cross_domain)
@@ -1135,6 +1041,10 @@ def main(_):
         drop_remainder=predict_drop_remainder)
 
     result = estimator.predict(input_fn=predict_input_fn)
+    # comet_value_updater.log_metric(
+    #     "eval_accuracy",
+    #     result["eval_accuracy"],
+    #     step=result["global_step"])
     tf.logging.info("Sandeep-5")
 
     output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
@@ -1160,10 +1070,10 @@ def main(_):
         output_line = "\t".join(
             str(class_probability)
             for class_probability in probabilities) + "\n"
-        #writer.write(output_line)
+        writer.write(output_line)
         num_written_lines += 1
     #os.chmod(output_predict_file, 0o777)
-    assert num_written_lines == num_actual_predict_examples
+    #assert num_written_lines == num_actual_predict_examples
 
 
 if __name__ == "__main__":
