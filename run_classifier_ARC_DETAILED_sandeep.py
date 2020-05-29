@@ -79,7 +79,7 @@ flags.DEFINE_bool("do_train", True, "Whether to run training.")
 flags.DEFINE_bool("do_eval", True, "Whether to run eval on the dev set.")
 
 flags.DEFINE_bool(
-    "do_predict", False,
+    "do_predict", True,
     "Whether to run the model in inference mode on the test set.")
 
 flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
@@ -271,9 +271,8 @@ class FeverProcessorInDomain(DataProcessor):
 
   def get_test_examples(self, data_dir):
     """See base class."""
-    ##feeding fnc.dev as the test partition
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "dev.tsv")), "test")
+        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
 
   def get_labels(self):
     """See base class."""
@@ -936,12 +935,9 @@ def main(_):
 
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
 
-    # comet_value_updater.log_metric(
-    #     "eval_accuracy",
-    #     result["eval_accuracy"],
-    #     step=result["global_step"])
+    filename_fever = "eval_fever_results" + str(FLAGS.num_train_epochs) + "_epochs.txt"
 
-    output_eval_file = os.path.join(FLAGS.output_dir, "eval_fever_results.txt")
+    output_eval_file = os.path.join(FLAGS.output_dir, filename_fever)
     
     tf.logging.info("Sandeep-4")
     tf.logging.info(output_eval_file)
@@ -994,12 +990,8 @@ def main(_):
 
       result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
 
-      # comet_value_updater.log_metric(
-      #     "eval_accuracy",
-      #     result["eval_accuracy"],
-      #     step=result["global_step"])
-
-      output_eval_file = os.path.join(FLAGS.output_dir, "eval_fnc_results.txt")
+      name_fnc = "eval_fnc_results_"+str(FLAGS.num_train_epochs)+"_epochs.txt"
+      output_eval_file = os.path.join(FLAGS.output_dir, name_fnc)
 
       tf.logging.info("Sandeep-4")
       tf.logging.info(output_eval_file)
@@ -1045,8 +1037,8 @@ def main(_):
     #     result["eval_accuracy"],
     #     step=result["global_step"])
     tf.logging.info("Sandeep-5")
-
-    output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
+    test_file_name="test_results"+str(FLAGS.num_train_epochs)+"_trainepochs.tsv"
+    output_predict_file = os.path.join(FLAGS.output_dir, test_file_name)
     tf.logging.info("Sandeep-5")
     tf.logging.info(output_predict_file)
     tf.logging.info(estimator.eval_dir())

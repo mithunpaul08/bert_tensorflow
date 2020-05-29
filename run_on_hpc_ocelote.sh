@@ -12,7 +12,7 @@ module load python/3.6/3.6.5
 
 #uncomment this if you don't want to reinstall venv- usually you just have to do this only once ever
 #rm -rf my_virtual_env
-mkdir sandeep_bert_venv
+#mkdir sandeep_bert_venv
 python3 -m venv sandeep_bert_venv
 
 #this is the only line you need if you already have a virtual_env set up
