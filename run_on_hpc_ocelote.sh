@@ -20,6 +20,7 @@ python3 -m venv sandeep_bert_venv
 #this is the only line you need if you already have a virtual_env set up
 source sandeep_bert_venv/bin/activate
 
+cd /home/u11/mithunpaul/sandeep_bert
 
 pip install --upgrade pip
 #pip install torch==1.5.0+cu92 torchvision==0.6.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
@@ -30,7 +31,7 @@ pip install -r requirements.txt
 
 #####my code part
 export PYTHONPATH="/home/u11/mithunpaul/sandeep_bert/"
-cd /home/u11/mithunpaul/sandeep_bert
+
 
 
 
