@@ -794,7 +794,7 @@ def main(_):
 
 
   tf.logging.set_verbosity(tf.logging.INFO)
-  comet_value_updater = initialize_comet()
+  # comet_value_updater = initialize_comet()
 
   processors = {
       # "cola": ColaProcessor,
@@ -937,10 +937,10 @@ def main(_):
 
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
 
-    comet_value_updater.log_metric(
-        "eval_accuracy",
-        result["eval_accuracy"],
-        step=result["global_step"])
+    # comet_value_updater.log_metric(
+    #     "eval_accuracy",
+    #     result["eval_accuracy"],
+    #     step=result["global_step"])
 
     output_eval_file = os.path.join(FLAGS.output_dir, "eval_fever_results.txt")
     
@@ -995,10 +995,10 @@ def main(_):
 
       result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
 
-      comet_value_updater.log_metric(
-          "eval_accuracy",
-          result["eval_accuracy"],
-          step=result["global_step"])
+      # comet_value_updater.log_metric(
+      #     "eval_accuracy",
+      #     result["eval_accuracy"],
+      #     step=result["global_step"])
 
       output_eval_file = os.path.join(FLAGS.output_dir, "eval_fnc_results.txt")
 
