@@ -56,15 +56,12 @@ def report_score(actual,predicted):
     return score*100/best_score
 
 #read tsv predictions from sandeeps tensorflow code
-#test_prediction_logits=pd.read_csv("output/test_results1.0_trainepochs.tsv",sep="\t",header=None)
-test_prediction_logits=pd.read_csv("output/sandeep_test_predictions_test_results.tsv",sep="\t",header=None)
-
-
+test_prediction_logits=pd.read_csv("output/test_results_sandeep_shownMihai.tsv",sep="\t",header=None)
 test_gold=pd.read_csv("data_full_size/fnc/test.tsv",sep="\t",header=None)
 
 
 #why are the lengths different?
-#assert len(test_gold)==len(test_prediction_logits)
+assert len(test_gold)==len(test_prediction_logits)
 
 pred_labels=[]
 gold_labels=[]
