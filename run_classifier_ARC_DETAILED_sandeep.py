@@ -17,6 +17,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from comet_ml import Experiment,ExistingExperiment
 import collections
 import csv
 import os
@@ -246,8 +247,8 @@ class FeverProcessorCrossDomain(DataProcessor):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
-        if set_type == "test" and i == 0:
-            continue
+        # if set_type == "test" and i == 0:
+        #     continue
         guid = "%s-%s" % (set_type, i)
         text_a = tokenization.convert_to_unicode(line[2])
         text_b = tokenization.convert_to_unicode(line[3])
@@ -270,7 +271,8 @@ class FeverProcessorInDomain(DataProcessor):
         "dev")
 
   def get_test_examples(self, data_dir):
-    """See base class."""
+    """pasing the value as dev instead of test because the code create_examples drops first line
+    assuming it to be header when the partition is "test"."""
     return self._create_examples(
         self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
 
@@ -282,8 +284,8 @@ class FeverProcessorInDomain(DataProcessor):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
-        if set_type == "test" and i == 0:
-            continue
+        # if set_type == "test" and i == 0:
+        #     continue
         guid = "%s-%s" % (set_type, i)
         text_a = tokenization.convert_to_unicode(line[2])
         text_b = tokenization.convert_to_unicode(line[3])
@@ -324,8 +326,8 @@ class FNCProcessorCrossDomain(DataProcessor):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
-        if set_type == "test" and i == 0:
-            continue
+        # if set_type == "test" and i == 0:
+        #     continue
         guid = "%s-%s" % (set_type, i)
         text_a = tokenization.convert_to_unicode(line[2])
         text_b = tokenization.convert_to_unicode(line[3])
@@ -802,10 +804,10 @@ def main(_):
       # "mnli": MnliProcessor,
       # "mrpc": MrpcProcessor,
       # "xnli": XnliProcessor,
-      "fevercd": FeverProcessorCrossDomain,
-      "fnccd": FNCProcessorCrossDomain,
-      "feverid": FeverProcessorInDomain,
-      "fncid": FNCProcessorInDomain,
+      "fevercd": FeverProcessorCrossDomain
+      # "fnccd": FNCProcessorCrossDomain,
+      # "feverid": FeverProcessorInDomain,
+      # "fncid": FNCProcessorInDomain,
 
   }
 
