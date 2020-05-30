@@ -57,7 +57,7 @@ def report_score(actual,predicted):
 
 #read tsv predictions from sandeeps tensorflow code
 #test_prediction_logits=pd.read_csv("output/test_results1.0_trainepochs.tsv",sep="\t",header=None)
-test_prediction_logits=pd.read_csv("output/test_results5.0_trainepochs.tsv",sep="\t",header=None)
+test_prediction_logits=pd.read_csv("output/sandeep_test_predictions_test_results.tsv",sep="\t",header=None)
 
 
 test_gold=pd.read_csv("data_full_size/fnc/test.tsv",sep="\t",header=None)
@@ -69,26 +69,26 @@ test_gold=pd.read_csv("data_full_size/fnc/test.tsv",sep="\t",header=None)
 pred_labels=[]
 gold_labels=[]
 
-
-# for (pred,actual_row) in zip(test_prediction_logits.values,test_gold.values):
-#     label_index=(np.argmax((pred).tolist()))
-#     label_string=LABELS[label_index]
-#     pred_labels.append(label_string)
-#     gold_labels.append(actual_row[1])
+#assuming all rows match
+for (pred,actual_row) in zip(test_prediction_logits.values,test_gold.values):
+    label_index=(np.argmax((pred).tolist()))
+    label_string=LABELS[label_index]
+    pred_labels.append(label_string)
+    gold_labels.append(actual_row[1])
 
 #assuming there is no corresponding prediction for 1st gold value/datapoint
-for index,predictions_row in enumerate(test_prediction_logits.values):
-    if index<25411:
-        label_index=(np.argmax(predictions_row.tolist()))
-        label_string=LABELS[label_index]
-        pred_labels.append(label_string)
+# for index,predictions_row in enumerate(test_prediction_logits.values):
+#     if index<25411:
+#         label_index=(np.argmax(predictions_row.tolist()))
+#         label_string=LABELS[label_index]
+#         pred_labels.append(label_string)
+#
+#         gold_label=(test_gold.values[index+1][1])
+#         gold_labels.append(gold_label)
+#     else:
+#         break
 
-        gold_label=(test_gold.values[index+1][1])
-        gold_labels.append(gold_label)
-    else:
-        break
-
-
+print(len(pred_labels))
 
 assert len(pred_labels)==len(gold_labels)
 report_score(gold_labels,pred_labels)
