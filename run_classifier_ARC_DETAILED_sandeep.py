@@ -1016,6 +1016,66 @@ def main(_):
               writer.write("%s = %s\n" % (key, str(result[key])))
 
   if FLAGS.do_predict:
+    predict_examples = processor.get_dev_examples(FLAGS.data_dir_cross_domain)
+    num_actual_predict_examples = len(predict_examples)
+    if FLAGS.use_tpu:
+      # TPU requires a fixed batch size for all batches, therefore the number
+      # of examples must be a multiple of the batch size, or else examples
+      # will get dropped. So we pad with fake examples which are ignored
+      # later on.
+      while len(predict_examples) % FLAGS.predict_batch_size != 0:
+        predict_examples.append(PaddingInputExample())
+
+    predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
+    file_based_convert_examples_to_features(predict_examples, label_list,
+                                            FLAGS.max_seq_length, tokenizer,
+                                            predict_file)
+    assert len(predict_examples)== num_actual_predict_examples
+    tf.logging.info("***** Running prediction*****")
+    tf.logging.info("  Num examples = %d (%d actual, %d padding)",
+                    len(predict_examples), num_actual_predict_examples,
+                    len(predict_examples) - num_actual_predict_examples)
+    tf.logging.info("  Batch size = %d", FLAGS.predict_batch_size)
+
+    predict_drop_remainder = True if FLAGS.use_tpu else False
+    predict_input_fn = file_based_input_fn_builder(
+        input_file=predict_file,
+        seq_length=FLAGS.max_seq_length,
+        is_training=False,
+        drop_remainder=predict_drop_remainder)
+
+    result = estimator.predict(input_fn=predict_input_fn)
+
+    tf.logging.info("Sandeep-5")
+    test_file_name="fnc_dev_predictinos_at_the_end_of"+str(FLAGS.num_train_epochs)+"_trainepochs.tsv"
+    output_predict_file = os.path.join(FLAGS.output_dir, test_file_name)
+    tf.logging.info("Sandeep-5")
+    tf.logging.info(output_predict_file)
+    tf.logging.info(estimator.eval_dir())
+    with open(output_predict_file, "w+") as writer:
+        pass
+    os.chmod(output_predict_file, 0o777)
+    with tf.gfile.GFile(output_predict_file, "a+") as writer:
+      num_written_lines = 0
+      tf.logging.info("****Sandeep*****")
+      tf.logging.info(result)
+      tf.logging.info("***** Predict results *****")
+      tf.logging.info("***** End *****")
+      for (i, prediction) in enumerate(result):
+        tf.logging.info("inside loop-1")
+        tf.logging.info(i)
+        probabilities = prediction["probabilities"]
+        tf.logging.info("inside loop-2")
+        if i >= num_actual_predict_examples:
+          break
+        output_line = "\t".join(
+            str(class_probability)
+            for class_probability in probabilities) + "\n"
+        writer.write(output_line)
+        num_written_lines += 1
+    assert num_written_lines == num_actual_predict_examples
+
+  if FLAGS.do_predict:
     predict_examples = processor.get_test_examples(FLAGS.data_dir_cross_domain)
     num_actual_predict_examples = len(predict_examples)
     if FLAGS.use_tpu:
@@ -1047,7 +1107,7 @@ def main(_):
     result = estimator.predict(input_fn=predict_input_fn)
 
     tf.logging.info("Sandeep-5")
-    test_file_name="test_results"+str(FLAGS.num_train_epochs)+"_trainepochs.tsv"
+    test_file_name="fnc_test_predictinos_at_the_"+str(FLAGS.num_train_epochs)+"_trainepochs.tsv"
     output_predict_file = os.path.join(FLAGS.output_dir, test_file_name)
     tf.logging.info("Sandeep-5")
     tf.logging.info(output_predict_file)
