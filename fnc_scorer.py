@@ -69,22 +69,24 @@ test_gold=pd.read_csv("data_full_size/fnc/test.tsv",sep="\t",header=None)
 pred_labels=[]
 gold_labels=[]
 
-#assuming last row is missing
-for (pred,actual_row) in zip(test_prediction_logits.values,test_gold.values):
-    label_index=(np.argmax((pred).tolist()))
-    label_string=LABELS[label_index]
-    pred_labels.append(label_string)
-    gold_labels.append(actual_row[1])
 
-#assuming first row is missing
-# for index,actual_row in enumerate(test_gold.values):
-#     if index<25411:
-#         label_index=(np.argmax((test_prediction_logits.values[index+1].tolist())))
-#         label_string=LABELS[label_index]
-#         pred_labels.append(label_string)
-#         gold_labels.append(actual_row[1])
-#     else:
-#         break
+# for (pred,actual_row) in zip(test_prediction_logits.values,test_gold.values):
+#     label_index=(np.argmax((pred).tolist()))
+#     label_string=LABELS[label_index]
+#     pred_labels.append(label_string)
+#     gold_labels.append(actual_row[1])
+
+#assuming there is no corresponding prediction for 1st gold value/datapoint
+for index,predictions_row in enumerate(test_prediction_logits.values):
+    if index<25411:
+        label_index=(np.argmax(predictions_row.tolist()))
+        label_string=LABELS[label_index]
+        pred_labels.append(label_string)
+
+        gold_label=(test_gold.values[index+1][1])
+        gold_labels.append(gold_label)
+    else:
+        break
 
 
 

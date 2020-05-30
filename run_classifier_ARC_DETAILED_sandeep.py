@@ -351,8 +351,11 @@ class FNCProcessorInDomain(DataProcessor):
 
   def get_test_examples(self, data_dir):
     """See base class."""
-    return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+    print("test")
+    tsv_input=self._read_tsv(os.path.join(data_dir, "test.tsv"))
+    ret= self._create_examples(tsv_input, "test")
+    print(ret)
+    return ret
 
   def get_labels(self):
     """See base class."""
@@ -362,8 +365,8 @@ class FNCProcessorInDomain(DataProcessor):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
-        if set_type == "test" and i == 0:
-            continue
+        # if set_type == "test" and i == 0:
+        #     continue
         guid = "%s-%s" % (set_type, i)
         text_a = tokenization.convert_to_unicode(line[2])
         text_b = tokenization.convert_to_unicode(line[3])
@@ -1017,7 +1020,7 @@ def main(_):
     file_based_convert_examples_to_features(predict_examples, label_list,
                                             FLAGS.max_seq_length, tokenizer,
                                             predict_file)
-
+    assert len(predict_examples)== num_actual_predict_examples
     tf.logging.info("***** Running prediction*****")
     tf.logging.info("  Num examples = %d (%d actual, %d padding)",
                     len(predict_examples), num_actual_predict_examples,
@@ -1030,13 +1033,9 @@ def main(_):
         seq_length=FLAGS.max_seq_length,
         is_training=False,
         drop_remainder=predict_drop_remainder)
-        drop_remainder=predict_drop_remainder)
 
     result = estimator.predict(input_fn=predict_input_fn)
-    # comet_value_updater.log_metric(
-    #     "eval_accuracy",
-    #     result["eval_accuracy"],
-    #     step=result["global_step"])
+
     tf.logging.info("Sandeep-5")
     test_file_name="test_results"+str(FLAGS.num_train_epochs)+"_trainepochs.tsv"
     output_predict_file = os.path.join(FLAGS.output_dir, test_file_name)
@@ -1065,7 +1064,7 @@ def main(_):
         writer.write(output_line)
         num_written_lines += 1
     #os.chmod(output_predict_file, 0o777)
-    #assert num_written_lines == num_actual_predict_examples
+    assert num_written_lines == num_actual_predict_examples
 
 
 if __name__ == "__main__":
