@@ -8,7 +8,7 @@
 
 cd /home/u11/mithunpaul/
 module load cuda90/neuralnet/7/7.3.1.20
-module load python/3.6/3.6.5
+module load python/2/2.7.14
 
 #uncomment this if you don't want to reinstall venv- usually you just have to do this only once ever
 rm -rf sandeep_bert_venv
